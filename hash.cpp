@@ -1,77 +1,116 @@
-#include <iostream> 
+#include<iostream> 
 #include <list> 
-#include <math.h>
+#include <cmath>
 using namespace std; 
-
-class Hash { 
-    private:
-        int tam; 
-        list<pair<int,int>> *table;
-
-    public: 
-
-        Hash(int V);
-        void insertItem( pair<int,int> x ); 
-        int hashFunction( pair<int,int> x ) { 
-            return pow( x.first, 3 ) + pow( x.second, 3 ); 
-        } 
-        void displayHash();
-        void allNum( int L );
+  
+class Hash 
+{ 
+    int BUCKET;    // No. of buckets 
+  
+    // Pointer to an array containing buckets 
+    list<int> *table; 
+public: 
+    Hash(int V);  // Constructor 
+  
+    // inserts a key into hash table 
+    void insertItem(int x); 
+  
+    // deletes a key from hash table 
+    void deleteItem(int key); 
+  
+    // hash function to map values to key 
+    int hashFunction(int x) { 
+        return (x % BUCKET); 
+    } 
+  
+    void displayHash(); 
 }; 
-
+  
 Hash::Hash(int b) 
 { 
-	this->tam = b; 
-	table = new list<pair<int,int>>[tam];
+    this->BUCKET = b; 
+    table = new list<int>[BUCKET]; 
 } 
-
-void Hash::insertItem( pair<int,int> key ) 
+  
+void Hash::insertItem(int key) 
 { 
-	int index = hashFunction( key ); 
-	table[index].push_back( key ); 
+    int index = hashFunction(key); 
+    table[index].push_back(key);
 } 
-
+  
+void Hash::deleteItem(int key) 
+{ 
+  // get the hash index of key 
+  int index = hashFunction(key); 
+  
+  // find the key in (inex)th list 
+  list <int> :: iterator i; 
+  for (i = table[index].begin(); 
+           i != table[index].end(); i++) { 
+    if (*i == key) 
+      break; 
+  } 
+  
+  // if key is found in hash table, remove it 
+  if (i != table[index].end()) 
+    table[index].erase(i); 
+} 
+  
+// function to display hash table 
 void Hash::displayHash() { 
-    for( int i = 0; i < tam; i++ ) { 
-        cout << i; 
-        for (auto x : table[i]) 
-            cout << " --> " << x.first << " " << x.second; 
-        cout << endl; 
-    } 
-}
-
-void Hash::allNum( int L ) {
-    for( int i = L; i >= 0; --i ) {
-        int c = 0;
-        for( auto x : table[ i ])
-            ++c;
-        if( c == 2 ) {
-            std::cout << i << " -> ";
-            for( auto y : table[ i ]) {
-                std::cout << "( " << y.first << " " << y.second << " ) ";
-            }
-            std::cout << std::endl;
-        }   
-    }
-}
-
-int main() {
-    Hash h(1000000); 
-    int c = 1;
-    for( int i = 0; i < 100; ++i ) {
-        for( int j = i + 1; j < 100; ++j ) {
-            if( pow( i, 3 ) + pow( j, 3 ) < 1000000 ) {
-                pair<int,int> x = make_pair( i, j );
-                h.insertItem( x );
-                ++c;
-            }
+  for (int i = 0; i < BUCKET; i++) { 
+    cout << i; 
+    for (auto x : table[i]) 
+      cout << " --> " << x; 
+    cout << endl; 
+  }
+} 
+  
+// Driver program  
+int main() 
+{ 
+    int NUMS=9;
+    int cabeza = pow(NUMS   , 1.0 / 3.0); 
+    int array[cabeza + 1]; 
+    int matrix[cabeza+1];
+    int k=0;
+    if(0<NUMS<1000000)
+    {
+        
+        for (int i = 1; i <= cabeza; i++) 
+            array[i] = i*i*i; 
+    
+        int l = 1; 
+        int r = cabeza; 
+    
+        while (l < r) 
+        { 
+            if (array[l] + array[r] < NUMS) 
+                l++; 
+            else if(array[l] + array[r] > NUMS) 
+                r--; 
+            else { 
+                matrix[k]=l;
+                k++;
+                matrix[k]=r;
+                k++;
+                l++; r--;
+                
+            } 
         }
     }
+    // array that contains keys to be mapped 
+    // insert the keys into the hash table 
+    Hash h(NUMS);   // 7 is count of buckets in 
+                // hash table 
+    for (int i = 0; i < k; i++)  
+        h.insertItem(matrix[i]);   
     
-    int num;
-    std::cin >> num;
-    h.allNum( num );
-
-
+    // delete 12 from hash table 
+    h.deleteItem(12); 
+    
+    // display the Hash table 
+    h.displayHash(); 
+    
     return 0; 
 } 
