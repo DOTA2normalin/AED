@@ -1,10 +1,8 @@
-
 #include <iostream>
 #include <cstdlib>
-#include <fstream>
-#include <string>
-#include <stdlib.h>
+#include <vector>
 using namespace std;
+static int contador;
 //Class NodeAVL
 struct NodeAVL{
         int dato;
@@ -16,53 +14,47 @@ struct NodeAVL{
         NodeAVL( int && _dato , NodeAVL * _left,NodeAVL * _right, int _height=0)
         :dato{ std::move(_dato)}, left{ _left }, right { _right}, height { _height} {}
 };
-
-int EsHoja(NodeAVL *&r)
+NodeAVL * findMin(NodeAVL *t)
 {
-   return !r->right && !r->left;
+    if( t == nullptr )
+        return nullptr;
+    if( t->left == nullptr )
+        return t;
+    return findMin( t->left );
+}
+bool buscar(NodeAVL *t,int x)
+{
+    if(t==nullptr)
+        return false;
+    if(t->dato == x)
+        return true;
+    
+    else if(t->dato == x)
+        return true;
+    buscar(t->left,x);
+    buscar(t->right,x);
+    
 }
 
-void auxAltura(NodeAVL *&nod, int a, int *altura)
+void auxContador(NodeAVL*& nodo, int *c)
 {
-   /* Recorrido postorden */
-   if(nod->left) auxAltura(nod->left, a+1, altura);
-   if(nod->right) auxAltura(nod->right, a+1, altura);
-   /* Proceso, si es un NodeAVL hoja, y su altura es mayor que la actual del
-      árbol, actualizamos la altura actual del árbol */
-   if(EsHoja(nod) && a > *altura) *altura = a;
-}
-int Vacio(NodeAVL *&r)
-{
-   return r==NULL;
-}
-int AlturaArbol(NodeAVL *&a, int *altura)
-{
-   *altura = 0;
+   (*c)++;
+   if(nodo->left) auxContador(nodo->left, c);
+   if(nodo->right)   auxContador(nodo->right, c);
+}  
 
-   auxAltura(a, 0, altura); /* Función auxiliar */
-   return *altura;
-}
-int Altura(NodeAVL *& a, int dat)
+int NumeroNodos(NodeAVL * a, int *contador)
 {
-   int altura = 0;
-   NodeAVL *actual = a;
+   *contador = -1;
 
-   /* Todavía puede aparecer, ya que quedan NodeAVLs por mirar */
-   while(!Vacio(actual)) {
-      if(dat == actual->dato) return altura; /* encontrado: devolver altura */
-      else {
-         altura++; /* Incrementamos la altura, seguimos buscando */
-         if(dat < actual->dato) actual = actual->left;
-         else if(dat > actual->dato) actual = actual->right;
-      }
-   }
-   return -1; /* No está en árbol, devolver -1 */
+   auxContador(a, contador); /* Función auxiliar */
+   return *contador;
 }
-//Functions
+
 int height(NodeAVL *t)
 {
     return t==nullptr ? -1: t->height;
-}
+}   
 void rotateWithLeftChild(NodeAVL *& k2)
 {
     NodeAVL *k1=k2->left;
@@ -111,15 +103,12 @@ void balanceo(NodeAVL *&t)
         if(height(t->right->right)>= height(t->right->left))
             rotateWithRightChild(t);
         else
-        {
             doubleWithRightChild(t);
-        }
         
     }
     t->height=max(height(t->left),height(t->right))+1;
 
 }
-
 
 void insertar(const int &x,NodeAVL *&t)
 {
@@ -135,18 +124,6 @@ void insertar(const int &x,NodeAVL *&t)
     }
     balanceo(t);    
 }
-
-
-
-NodeAVL * findMin(NodeAVL *t)
-{
-    if( t == nullptr )
-        return nullptr;
-    if( t->left == nullptr )
-        return t;
-    return findMin( t->left );
-}
-
 void remove(const int &x, NodeAVL *& t)
 {
     if(t==nullptr)
@@ -170,11 +147,40 @@ void remove(const int &x, NodeAVL *& t)
     }
     balanceo(t);
 }
+int ancestro(NodeAVL *&t,int a,int b)
+{
+    if(t==nullptr)
+        return -1;
+    else if(t->dato < a && t->dato > b )
+        return t->dato;
+    else if(t->dato > a&& t->dato < b)
+        return t->dato;
+    else if(t->dato > a && t->dato > b)
+        ancestro(t->left,a,b);
+    else if(t->dato < a && t->dato < b)
+        ancestro(t->right,a,b);
+}
+bool esHoja(NodeAVL *&t,int a)
+{
+    if(t==nullptr)
+        return false;
+    else if(t->dato >  a)
+        esHoja(t->left,a);
+    else if(t->dato < a)
+        esHoja(t->right,a);
+    else if(t->dato == a && t->left==nullptr && t->right==nullptr)
+        return true;
+    else
+    {
+        ;
+    }
+    
+}
 
 void verArbol(NodeAVL *&arbol, int n)
 {
      if(arbol==NULL)
-          return;
+          return ;
      verArbol(arbol->right, n+1);
 
      for(int i=0; i<n; i++)
@@ -184,29 +190,17 @@ void verArbol(NodeAVL *&arbol, int n)
 
      verArbol(arbol->left, n+1);
 }
-void print(ofstream &t, NodeAVL *&arbol)
-{
-    if(arbol!=NULL)
-    {
-        if(arbol->left)
-        {
-            t<<arbol->dato<<" -> "<<arbol->left->dato<<endl;
-        }
-        if(arbol->right)
-        {
-            t<<arbol->dato<<" -> "<< arbol->right->dato<<endl;
-        }
-        print(t,arbol->left);
-        cout<<arbol->dato<<endl;
-        print(t,arbol->right);
-    }
-}
 int main()
 {
-    NodeAVL *head=NULL;
+    NodeAVL *head=nullptr;
+    insertar(7,head);
     insertar(8,head);
     insertar(9,head);
     insertar(10,head);
+    insertar(11,head);
+    insertar(12,head);    
     verArbol(head,0);
+    cout<<endl;
+    cout<< " ancestro :" << ancestro(head,13,8);
     return 0;
 }
