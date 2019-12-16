@@ -5,100 +5,73 @@ using namespace std;
 
 class Hash { 
     private:
-        int V;
-        list<int> *table;
+        int tam; 
+        list<pair<int,int>> *table;
 
     public: 
 
         Hash(int V);
-        void insertItem( int x ); 
-        int hashFunction( int x ) { 
-            return x%V; 
+        void insertItem( pair<int,int> x ); 
+        int hashFunction( pair<int,int> x ) { 
+            return pow( x.first, 3 ) + pow( x.second, 3 ); 
         } 
         void displayHash();
-        void deleteItem(int key);
         void allNum( int L );
 }; 
 
 Hash::Hash(int b) 
 { 
-	this->V=b;
-    table = new list<int>[V];
+	this->tam = b; 
+	table = new list<pair<int,int>>[tam];
 } 
 
-void Hash::insertItem( int key ) 
+void Hash::insertItem( pair<int,int> key ) 
 { 
 	int index = hashFunction( key ); 
 	table[index].push_back( key ); 
 } 
-void Hash::deleteItem(int key) 
-{ 
-    int index = hashFunction(key); 
-    
-    list <int> :: iterator i; 
-    for (i = table[index].begin();i != table[index].end(); i++) { 
-        if (*i == key) 
-        break; 
-    } 
-    
-    // if key is found in hash table, remove it 
-    if (i != table[index].end())
-        table[index].erase(i); 
 
-} 
-    
 void Hash::displayHash() { 
-    for( int i = 0; i < V; i++ ) { 
+    for( int i = 0; i < tam; i++ ) { 
         cout << i; 
         for (auto x : table[i]) 
-            cout << " --> " << x; 
+            cout << " --> " << x.first << " " << x.second; 
         cout << endl; 
     } 
 }
 
-
-bool isPrime( int n )
-{
-    if( n == 2 || n == 3 )
-        return true;
-
-    if( n == 1 || n % 2 == 0 )
-        return false;
-
-    for( int i = 3; i * i <= n; i += 2 )
-        if( n % i == 0 )
-            return false;
-
-    return true;
-}
-
-/**
- * Internal method to return a prime number at least as large as n.
- * Assumes n > 0.
- */
-int nextPrime( int n )
-{
-    if( n % 2 == 0 )
-        ++n;
-
-    for( ; !isPrime( n ); n += 2 )
-        ;
-
-    return n;
+void Hash::allNum( int L ) {
+    for( int i = L; i >= 0; --i ) {
+        int c = 0;
+        for( auto x : table[ i ])
+            ++c;
+        if( c == 2 ) {
+            std::cout << i << " -> ";
+            for( auto y : table[ i ]) {
+                std::cout << "( " << y.first << " " << y.second << " ) ";
+            }
+            std::cout << std::endl;
+        }   
+    }
 }
 
 int main() {
-    int a[] = {15, 11, 27, 8, 12}; 
-    int n = sizeof(a)/sizeof(a[0]); 
+    Hash h(1000000); 
+    int c = 1;
+    for( int i = 0; i < 100; ++i ) {
+        for( int j = i + 1; j < 100; ++j ) {
+            if( pow( i, 3 ) + pow( j, 3 ) < 1000000 ) {
+                pair<int,int> x = make_pair( i, j );
+                h.insertItem( x );
+                ++c;
+            }
+        }
+    }
     
-    Hash h(7);    
-    for (int i = 0; i < n; i++)  
-        h.insertItem(a[i]);   
-    
-    h.deleteItem(12); 
-    
+    int num;
+    std::cin >> num;
+    h.allNum( num );
 
-    h.displayHash(); 
-    
-    return 0;
+
+    return 0; 
 } 
